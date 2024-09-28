@@ -1,0 +1,51 @@
+version: "1"
+
+package:
+  id: io.github.Unciv
+  name: Unciv
+  version: 4.13.6.0
+  kind: app
+  description: |
+    Open-source Android/Desktop remake of Civ V
+
+base: org.deepin.foundation/23.0.0
+runtime: org.deepin.Runtime/23.0.1
+
+command:
+  - /opt/apps/io.github.Unciv/files/bin/Unciv
+
+sources:
+  - kind: git
+    url: https://github.com/yairm210/Unciv.git
+    commit: 7c46b3533b7e9b3c40b556c5ea66ecffbfc6888c
+
+  - kind: git
+    url: https://github.com/LuaDist/unzip.git
+    commit: b2592fd6ac2dbf800130be3c64332317aff17f12
+
+
+  - kind: file
+    url: https://github.com/yairm210/Unciv/releases/download/4.13.6/Unciv-Linux64.zip
+    digest: 343b3e1b9415ed6fec6bd78085d5da1fa45fe567fa37a984f61ab1b6f4001f63
+
+
+build: |
+  cd /project/linglong/sources/unzip.git/
+  cmake -Bbuild \
+        -DCMAKE_INSTALL_PREFIX=${PREFIX} \
+        -DCMAKE_INSTALL_LIBDIR=${PREFIX}/lib/${TRIPLET}
+  cmake --build build
+  cmake --build build --target install
+  
+  cd /project/linglong/sources/
+  unzip  Unciv-Linux64.zip -d Unciv-Linux64
+
+  cd /project/linglong/sources/Unciv.git/
+  mkdir -p ${PREFIX}/share/applications
+  cp desktop/linuxFilesForJar/unciv.desktop ${PREFIX}/share/applications
+  mkdir -p ${PREFIX}/share/icon/hicolor/512x512/apps
+  cp extraImages/Icons/'Unciv icon v6.png' extraImages/unciv.png
+  cp extraImages/unciv.png ${PREFIX}/share/icon/hicolor/512x512/apps/
+
+  cd /project/linglong/sources/Unciv-Linux64/
+  cp -r * ${PREFIX}/bin/
